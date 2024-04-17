@@ -399,15 +399,21 @@ func (vm *volumeManager) WaitForAttachAndMount(pod *v1.Pod) error {
 	klog.V(3).InfoS("Waiting for volumes to attach and mount for pod", "pod", klog.KObj(pod))
 	uniquePodName := util.GetUniquePodName(pod)
 
+	klog.Infof("%s [CONTINUUM] 0557 before reprocess world state pod=%s", time.Now().UnixNano(), klog.KObj(pod))
+
 	// Some pods expect to have Setup called over and over again to update.
 	// Remount plugins for which this is true. (Atomically updating volumes,
 	// like Downward API, depend on this to update the contents of the volume).
 	vm.desiredStateOfWorldPopulator.ReprocessPod(uniquePodName)
 
+	klog.Infof("%s [CONTINUUM] 0558 before volume poll pod=%s", time.Now().UnixNano(), klog.KObj(pod))
+
 	err := wait.PollImmediate(
 		podAttachAndMountRetryInterval,
 		podAttachAndMountTimeout,
 		vm.verifyVolumesMountedFunc(uniquePodName, expectedVolumes))
+
+	klog.Infof("%s [CONTINUUM] 0559 after volume poll pod=%s", time.Now().UnixNano(), klog.KObj(pod))
 
 	if err != nil {
 		unmountedVolumes :=

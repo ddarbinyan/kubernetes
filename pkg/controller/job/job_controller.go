@@ -1374,6 +1374,8 @@ func (jm *Controller) manageJob(ctx context.Context, job *batch.Job, activePods 
 		return 0, metrics.JobSyncActionTracking, nil
 	}
 
+	klog.Infof("%s [CONTINUUM] 0028 job=%s", time.Now().UnixNano(), klog.KObj(job))
+
 	if jobSuspended(job) {
 		klog.V(4).InfoS("Deleting all active pods in suspended job", "job", klog.KObj(job), "active", active)
 		podsToDelete := activePodsForRemoval(job, activePods, int(active))
