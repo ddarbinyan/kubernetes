@@ -23,6 +23,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/uuid"
 	"k8s.io/kubernetes/pkg/features"
 	"k8s.io/kubernetes/pkg/util/parsers"
 	"k8s.io/utils/pointer"
@@ -144,6 +146,11 @@ func SetDefaults_Service(obj *v1.Service) {
 	}
 }
 func SetDefaults_Pod(obj *v1.Pod) {
+	if obj.ObjectMeta.UID == "" {
+		obj.ObjectMeta.UID = uuid.NewUUID()
+		obj.ObjectMeta.CreationTimestamp = metav1.Now()
+	}
+
 	// If limits are specified, but requests are not, default requests to limits
 	// This is done here rather than a more specific defaulting pass on v1.ResourceRequirements
 	// because we only want this defaulting semantic to take place on a v1.Pod and not a v1.PodTemplate
